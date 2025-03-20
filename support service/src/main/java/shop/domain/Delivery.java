@@ -21,7 +21,7 @@ public class Delivery {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String orderId;
+    private Long orderId;
 
     private String address;
 
@@ -44,27 +44,18 @@ public class Delivery {
     public static void startDelivery(OrderPlaced orderPlaced) {
         //implement business logic here:
 
-        /** Example 1:  new item 
+
         Delivery delivery = new Delivery();
+        delivery.setAddress(orderPlaced.getAddress());
+        delivery.setCustomerId(orderPlaced.getCustomerId());
+        delivery.setOrderId(orderPlaced.getId());
+        delivery.setProductId(orderPlaced.getProductId());
+        delivery.setQty(orderPlaced.getQty());
         repository().save(delivery);
 
         DeliveryStarted deliveryStarted = new DeliveryStarted(delivery);
         deliveryStarted.publishAfterCommit();
-        */
-
-        /** Example 2:  finding and process
-        
-
-        repository().findById(orderPlaced.get???()).ifPresent(delivery->{
-            
-            delivery // do something
-            repository().save(delivery);
-
-            DeliveryStarted deliveryStarted = new DeliveryStarted(delivery);
-            deliveryStarted.publishAfterCommit();
-
-         });
-        */
+    
 
     }
 
@@ -73,27 +64,18 @@ public class Delivery {
     public static void cancelDelivery(OrderCancelled orderCancelled) {
         //implement business logic here:
 
-        /** Example 1:  new item 
-        Delivery delivery = new Delivery();
-        repository().save(delivery);
 
-        DeliveryCancelled deliveryCancelled = new DeliveryCancelled(delivery);
-        deliveryCancelled.publishAfterCommit();
-        */
 
-        /** Example 2:  finding and process
-        
-
-        repository().findById(orderCancelled.get???()).ifPresent(delivery->{
+        repository().findById(orderCancelled.getId()).ifPresent(delivery->{
             
-            delivery // do something
+            delivery.setStatus("Cancelled"); // do something
             repository().save(delivery);
 
             DeliveryCancelled deliveryCancelled = new DeliveryCancelled(delivery);
             deliveryCancelled.publishAfterCommit();
 
          });
-        */
+        
 
     }
     //>>> Clean Arch / Port Method
