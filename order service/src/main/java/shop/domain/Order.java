@@ -7,119 +7,68 @@ import java.util.List;
 import java.util.Map;
 import javax.persistence.*;
 import lombok.Data;
-import shop.OrderServiceApplication;
-import shop.domain.OrderCancelled;
-import shop.domain.OrderPlaced;
+import shop.SupportServiceApplication;
+import shop.domain.InventoryDecreased;
+import shop.domain.InventoryIncreased;
 
 @Entity
-@Table(name = "Order_table")
+@Table(name = "Inventory_table")
 @Data
 //<<< DDD / Aggregate Root
-public class Order {
+public class Inventory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String customerId;
+    private String name;
 
-    private String productId;
-
-    private Integer price;
+    private String price;
 
     private Integer qty;
 
-    private String address;
-
-    private String status;
-
-    @PostPersist
-    public void onPostPersist() {
-        OrderPlaced orderPlaced = new OrderPlaced(this);
-        orderPlaced.publishAfterCommit();
-
-        OrderCancelled orderCancelled = new OrderCancelled(this);
-        orderCancelled.publishAfterCommit();
-    }
-
-    public static OrderRepository repository() {
-        OrderRepository orderRepository = OrderServiceApplication.applicationContext.getBean(
-            OrderRepository.class
+    public static InventoryRepository repository() {
+        InventoryRepository inventoryRepository = SupportServiceApplication.applicationContext.getBean(
+            InventoryRepository.class
         );
-        return orderRepository;
+        return inventoryRepository;
     }
 
     //<<< Clean Arch / Port Method
-    public static void sendMail(InventoryIncreased inventoryIncreased) {
+    public static void decreaseInventory(DeliveryStarted deliveryStarted) {
         //implement business logic here:
 
-        /** Example 1:  new item 
-        Order order = new Order();
-        repository().save(order);
 
-        */
-
-        /** Example 2:  finding and process
-        
-
-        repository().findById(inventoryIncreased.get???()).ifPresent(order->{
+        repository().findById(Long.valueOf(deliveryStarted.getProductId())).ifPresent(inventory->{
             
-            order // do something
-            repository().save(order);
+            inventory.setQty(inventory.getQty() - deliveryStarted.getQty()); // do something
+            repository().save(inventory);
 
+            InventoryDecreased inventoryDecreased = new InventoryDecreased(inventory);
+            inventoryDecreased.publishAfterCommit();
 
          });
-        */
+        
 
     }
 
     //>>> Clean Arch / Port Method
     //<<< Clean Arch / Port Method
-    public static void updateStatus(DeliveryStarted deliveryStarted) {
+    public static void increaseInventory(DeliveryCancelled deliveryCancelled) {
         //implement business logic here:
 
-        /** Example 1:  new item 
-        Order order = new Order();
-        repository().save(order);
 
-        */
 
-        /** Example 2:  finding and process
-        
-
-        repository().findById(deliveryStarted.get???()).ifPresent(order->{
+        repository().findById(Long.valueOf(deliveryCancelled.getProductId())).ifPresent(inventory->{
             
-            order // do something
-            repository().save(order);
+            inventory.setQty(inventory.getQty() + deliveryCancelled.getQty()); // do something
+            repository().save(inventory);
 
+            InventoryIncreased inventoryIncreased = new InventoryIncreased(inventory);
+            inventoryIncreased.publishAfterCommit();
 
          });
-        */
-
-    }
-
-    //>>> Clean Arch / Port Method
-    //<<< Clean Arch / Port Method
-    public static void updateStatus(DeliveryCancelled deliveryCancelled) {
-        //implement business logic here:
-
-        /** Example 1:  new item 
-        Order order = new Order();
-        repository().save(order);
-
-        */
-
-        /** Example 2:  finding and process
         
-
-        repository().findById(deliveryCancelled.get???()).ifPresent(order->{
-            
-            order // do something
-            repository().save(order);
-
-
-         });
-        */
 
     }
     //>>> Clean Arch / Port Method
